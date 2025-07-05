@@ -12,6 +12,11 @@ const TransactionSchema = new mongoose.Schema({
     date: {
       type: Date,
       required: [true, "Date is required"]
+    },
+    category: {
+      type: String,
+      enum: ["Food", "Transport", "Shopping", "Utilities", "Other"],
+      default: "Other"
     }
   },
   { timestamps: true }

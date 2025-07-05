@@ -37,10 +37,10 @@ export async function POST(req: Request) {
 export async function PUT(req: Request) {
   try {
     await connectDB();
-    const { id, amount, description, date } = await req.json()
+    const { id, amount, description, date, category } = await req.json()
     const updated = await Transaction.findByIdAndUpdate(
       id,
-      { amount, description, date },
+      { amount, description, date, category },
       { new: true }
     )
     return NextResponse.json(updated)
@@ -65,3 +65,5 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }
+
+

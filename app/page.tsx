@@ -8,20 +8,20 @@ import { Card } from "@/components/ui/card"
 import MonthlyChart from "@/components/MonthlyChart"
 import TransactionList from "@/components/TransactionList"
 import TransactionDialog from "@/components/TransactionDialog"
+import Summary from "@/components/Summary"
+import CategoryChart from "@/components/CategoryChart"
 
-
-// Define Transaction type.
-type Transaction = { _id: string; amount: number; description: string; date: string }
+import { Transaction } from "@/types/transaction"
 
 export default function HomePage() {
-
   // Form input states.
   const [date, setDate] = useState("")
   const [amount, setAmount] = useState("")
+  const [category, setCategory] = useState("Other")
   const [description, setDescription] = useState("")
 
   const [transactions, setTransactions] = useState<Transaction[]>([])
-  
+
   // Edit state & dialog state.
   const [editMode, setEditMode] = useState(false)
   const [openDialog, setOpenDialog] = useState(false)
@@ -41,6 +41,7 @@ export default function HomePage() {
   async function addTransaction() {
     if (!amount || !description || !date)
       return alert("All fields are required")
+
     if (editMode && editingTxn) {
       // Edit existing transaction
       await axios.put("/api/transactions", {
@@ -48,6 +49,7 @@ export default function HomePage() {
         amount: parseFloat(amount),
         description,
         date,
+        category,
       })
       setEditMode(false)
       setEditingTxn(null)
@@ -57,11 +59,15 @@ export default function HomePage() {
         amount: parseFloat(amount),
         description,
         date,
+        category,
       })
     }
+
+    // Clear form
     setAmount("")
     setDescription("")
     setDate("")
+    setCategory("Other")
     setOpenDialog(false)
     fetchTransactions()
   }
@@ -78,33 +84,30 @@ export default function HomePage() {
     setAmount(String(txn.amount))
     setDescription(txn.description)
     setDate(txn.date.split("T")[0])
+    setCategory(txn.category || "Other")
     setOpenDialog(true)
   }
 
   // Prepare monthly summary data for bar chart.
-  type ChartEntry = {
-    name: string;
-    total: number;
-  }
-  const chartData: ChartEntry[] = transactions.reduce((acc: ChartEntry[], txn) => {
-    const month = new Date(txn.date).toLocaleString("default", {
-      month: "short",
-    })
+  const chartData = transactions.reduce<{ name: string; total: number }[]>((acc, txn) => {
+    const month = new Date(txn.date).toLocaleString("default", { month: "short" })
     const found = acc.find((a) => a.name === month)
     if (found) {
-      found.total += txn.amount;
+      found.total += txn.amount
     } else {
       acc.push({ name: month, total: txn.amount })
     }
     return acc
   }, [])
 
-
   return (
-    <div className="h-screen bg-gradient-to-br from-white via-blue-50 to-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-white p-6">
       <div className="max-w-6xl mx-auto space-y-10">
         {/* App Header */}
         <Header />
+
+        {/* Summary Cards */}
+        <Summary transactions={transactions} />
 
         {/* Transaction Form Dialog (Add/Edit) */}
         <Card className="p-6 bg-white/80 backdrop-blur rounded-2xl shadow-md border border-gray-200">
@@ -112,17 +115,19 @@ export default function HomePage() {
             amount={amount}
             description={description}
             date={date}
+            category={category}
             editMode={editMode}
             openDialog={openDialog}
             setOpenDialog={setOpenDialog}
             setAmount={setAmount}
             setDescription={setDescription}
             setDate={setDate}
+            setCategory={setCategory}
             onSubmit={addTransaction}
           />
         </Card>
 
-        {/* Main Content: Transaction List + Bar Chart */}
+        {/* Main Content: Transaction List + Charts */}
         <div className="flex flex-col md:flex-row gap-6">
           <Card className="p-6 bg-white/80 rounded-2xl shadow-sm border border-gray-200 w-full md:w-1/2">
             <TransactionList
@@ -131,10 +136,16 @@ export default function HomePage() {
               onDelete={deleteTransaction}
             />
           </Card>
+
           <Card className="p-6 bg-white/80 rounded-2xl shadow-sm border border-gray-200 w-full md:w-1/2">
             <MonthlyChart chartData={chartData} />
           </Card>
         </div>
+
+        {/* Category Chart */}
+        <Card className="p-6 bg-white/80 rounded-2xl shadow-sm border border-gray-200">
+          <CategoryChart transactions={transactions} />
+        </Card>
       </div>
     </div>
   )

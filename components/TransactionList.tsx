@@ -4,12 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { CalendarIcon, EditIcon, Trash2Icon } from "lucide-react"
 
-type Transaction = {
-  _id: string
-  amount: number
-  description: string
-  date: string
-}
+import { Transaction } from "@/types/transaction"
 
 type Props = {
   transactions: Transaction[]

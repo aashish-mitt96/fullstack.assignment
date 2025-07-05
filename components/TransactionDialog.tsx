@@ -3,6 +3,7 @@
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 type Props = {
@@ -11,6 +12,8 @@ type Props = {
   date: string
   editMode: boolean
   openDialog: boolean
+  category: string
+  setCategory: (value: string) => void
   setOpenDialog: (value: boolean) => void
   setAmount: (value: string) => void
   setDescription: (value: string) => void
@@ -24,6 +27,8 @@ export default function TransactionDialog({
   date,
   editMode,
   openDialog,
+  category,
+  setCategory,
   setOpenDialog,
   setAmount,
   setDescription,
@@ -75,6 +80,21 @@ export default function TransactionDialog({
               onChange={(e) => setDate(e.target.value)}
             />
           </div>
+          <div>
+        <Label className="mb-2">📂 Category</Label>
+        <Select value={category} onValueChange={setCategory}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select category" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Food">Food</SelectItem>
+            <SelectItem value="Transport">Transport</SelectItem>
+            <SelectItem value="Shopping">Shopping</SelectItem>
+            <SelectItem value="Utilities">Utilities</SelectItem>
+            <SelectItem value="Other">Other</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
         </div>
         <div className="flex justify-end">
           <Button
