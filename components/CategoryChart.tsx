@@ -11,12 +11,12 @@ type Props = {
 }
 
 export default function CategoryChart({ transactions }: Props) {
-  const grouped = transactions.reduce((acc: any, txn) => {
+  const grouped = transactions.reduce((acc: Record<string, number>, txn) => {
     acc[txn.category] = (acc[txn.category] || 0) + txn.amount
     return acc
   }, {})
 
-  const data = Object.entries(grouped).map(([name, value]) => ({ name,value }))
+  const data = Object.entries(grouped).map(([name, value]) => ({ name, value }))
 
   return (
     <>
